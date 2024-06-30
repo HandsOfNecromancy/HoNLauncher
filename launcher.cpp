@@ -163,12 +163,13 @@ void LaunchGame()
 	}
 #else // (__GNUC__ || __clang__)
 	pid_t pid;
-	char* argsv[4];
+	char* argsv[5];
 	std::string full_path = getExecutablePath() + std::string("/") + std::string((char*)GetProgram());
 	argsv[0] = full_path.data();
 	argsv[1] = (char*)GetLanguage();
-	argsv[2] = commandline;
-	argsv[3] = NULL;
+	argsv[2] = (char*)GetExtraArgs();
+	argsv[3] = commandline;
+	argsv[4] = NULL;
 
 	//printf("%s\n", argv[0]);
 
