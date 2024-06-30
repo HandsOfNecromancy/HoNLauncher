@@ -75,7 +75,7 @@ const char* GetProgram()
 	}
 }
 
-#define MANDATORYARGS " +set queryiwad false -iwad HandsOfNecromancy -iwad HandsOfNecromancy2"
+#define MANDATORYARGS " +set queryiwad false -iwad HandsOfNecromancy.ipk3 -iwad HandsOfNecromancy2.ipk3"
 const char* GetExtraArgs()
 {
 	switch(vidmode)
