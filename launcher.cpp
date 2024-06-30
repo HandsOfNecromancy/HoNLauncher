@@ -75,19 +75,20 @@ const char* GetProgram()
 	}
 }
 
+#define MANDATORYARGS " +set queryiwad false -iwad HandsOfNecromancy -iwad HandsOfNecromancy2"
 const char* GetExtraArgs()
 {
 	switch(vidmode)
 	{
 	case 0:
-		return " +set queryiwad false";
+		return MANDATORYARGS;
 	default:
 	case 1:
-		return " +set queryiwad false +set vid_preferbackend 2";
+		return MANDATORYARGS " +set vid_preferbackend 2";
 	case 2:
-		return " +set queryiwad false +set vid_preferbackend 1";
+		return MANDATORYARGS " +set vid_preferbackend 1";
 	case 3:
-		return " +set queryiwad false +set vid_preferbackend 0";
+		return MANDATORYARGS " +set vid_preferbackend 0";
 	}
 
 }
