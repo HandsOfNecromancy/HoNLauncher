@@ -71,13 +71,25 @@ const char* GetProgram()
 	case 0:
 		return "engine-vkdoom" EXT;
 	default:
-	case 1:
-		return "engine-classic" EXT " +set vid_preferbackend 2";
-	case 2:
-		return "engine-classic" EXT " +set vid_preferbackend 1";
-	case 3:
-		return "engine-classic" EXT " +set vid_preferbackend 0";
+		return "engine-classic" EXT;
 	}
+}
+
+const char* GetExtraArgs()
+{
+	switch(vidmode)
+	{
+	case 0:
+		return " +set queryiwad false";
+	default:
+	case 1:
+		return " +set queryiwad false +set vid_preferbackend 2";
+	case 2:
+		return " +set queryiwad false +set vid_preferbackend 1";
+	case 3:
+		return " +set queryiwad false +set vid_preferbackend 0";
+	}
+
 }
 
 const char* GetLanguage()
@@ -113,7 +125,7 @@ void LaunchGame()
 
 #ifdef _WIN32
 	char cmdLine[512];
-	snprintf(cmdLine, sizeof(cmdLine), "%s %s %s", GetProgram(), GetLanguage(), commandline);
+	snprintf(cmdLine, sizeof(cmdLine), "%s %s %s %s", GetProgram(), GetExtraArgs(), GetLanguage(), commandline);
 
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
@@ -150,12 +162,12 @@ void LaunchGame()
 	}
 #else // (__GNUC__ || __clang__)
 	pid_t pid;
-	char* argv[4];
+	char* argsv[4];
 	std::string full_path = getExecutablePath() + std::string("/") + std::string((char*)GetProgram());
-	argv[0] = full_path.data();
-	argv[1] = (char*)GetLanguage();
-	argv[2] = commandline;
-	argv[3] = NULL;
+	argsv[0] = full_path.data();
+	argsv[1] = (char*)GetLanguage();
+	argsv[2] = commandline;
+	argsv[3] = NULL;
 
 	//printf("%s\n", argv[0]);
 
@@ -185,7 +197,12 @@ void LaunchGame()
 		if (pid == 0)
 		{
 			// This is the child process
-			execvp(argv[0], argv);
+			/*
+			for(int i = 0; argsv[i] != 0; i++) {
+				printf("argsv[%i]: %s\n", i, argsv[i]);
+			}
+			*/
+			execvp(argsv[0], argsv);
 
 			// execvp will only return if an error occurred.
 			printf("An error occurred while launching the process.\n");
