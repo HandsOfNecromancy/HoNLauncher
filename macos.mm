@@ -23,6 +23,14 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+	NSString *appPath1 = [[NSBundle mainBundle] bundlePath];
+	NSString *appPath2 = @"/Contents/MacOS";
+	NSString *appPath = [appPath stringByAppendingString:appPath2];
+	[fileManager changeCurrentDirectoryPath:appPath];
+
+	//printf ("%s\n", [appPath UTF8String]);
+
 	// Create the window
 	self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 640, 480)
 				styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable
@@ -34,9 +42,13 @@
 	[self.window setContentView:contentView];
 
 	// Set the background image
+	NSString *imagePath = [appPath stringByAppendingPathComponent:@"startup.png"];
+	NSURL *imageURL = [NSURL fileURLWithPath:imagePath];
+	NSImage *image = [[NSImage alloc] initWithContentsOfURL:imageURL];
+
 	NSImageView *backgroundView = [[NSImageView alloc] initWithFrame:self.window.contentView.bounds];
 	backgroundView.imageScaling = NSImageScaleAxesIndependently;
-	backgroundView.image = [NSImage imageNamed:@"startup.png"];
+	backgroundView.image = image;
 	[self.window.contentView addSubview:backgroundView positioned:NSWindowBelow relativeTo:nil];
 	
 	// Create the combo box

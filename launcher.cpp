@@ -161,7 +161,7 @@ void LaunchGame()
 
 	std::string desiredPath = getExecutablePath();
 #ifdef __APPLE__
-	desiredPath += "/../..";
+	desiredPath += "/../../..";
 	//printf("%s\n", desiredPath.data());
 #endif
 
