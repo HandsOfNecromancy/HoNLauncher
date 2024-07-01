@@ -130,7 +130,7 @@ void LaunchGame()
 	save_options(option1, option2);
 
 #ifdef _WIN32
-	char cmdLine[512];
+	char cmdLine[2048];
 	snprintf(cmdLine, sizeof(cmdLine), "%s %s %s %s", GetProgram(), GetExtraArgs(), GetLanguage(), commandline);
 
 	STARTUPINFO si;
@@ -175,16 +175,14 @@ void LaunchGame()
 	std::istringstream iss(full_args);
 	std::vector<std::string> args((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 
+	argsv.push_back((char*)full_path.data());
 	for (const auto& arg : args)
 	{
 		char* cparg = (char*)arg.data();
 		if (cparg[0] != 0) // don't push null args
 			argsv.push_back(cparg);
-		printf("%s\n", cparg);
 	}
 	argsv.push_back(nullptr);
-
-	argsv[0] = (char*)full_path.data();
 
 	//printf("%s\n", argv[0]);
 
@@ -216,11 +214,10 @@ void LaunchGame()
 		if (pid == 0)
 		{
 			// This is the child process
-			/*
-			for(int i = 0; argsv[i] != 0; i++) {
-				printf("argsv[%i]: %s\n", i, argsv[i]);
-			}
-			*/
+			/*for(int i = 0; argsv[i] != 0; i++)
+			{
+				printf("argsv[%i]: \"%s\"\n", i, argsv[i]);
+			}*/
 			execvp(argsv[0], argsv.data());
 
 			// execvp will only return if an error occurred.
