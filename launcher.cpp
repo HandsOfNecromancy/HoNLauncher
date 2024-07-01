@@ -14,12 +14,17 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <cstring>
+#include <vector>
+#include <sstream>
 #define EXT ""
 #else
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <cstring>
+#include <vector>
+#include <sstream>
+#include <iterator>
 #define EXT ""
 #endif
 
@@ -163,13 +168,18 @@ void LaunchGame()
 	}
 #else // (__GNUC__ || __clang__)
 	pid_t pid;
-	char* argsv[5];
+	std::vector<char*> argsv;
 	std::string full_path = getExecutablePath() + std::string("/") + std::string((char*)GetProgram());
-	argsv[0] = full_path.data();
-	argsv[1] = (char*)GetLanguage();
-	argsv[2] = (char*)GetExtraArgs();
-	argsv[3] = commandline;
-	argsv[4] = NULL;
+	std::string full_args = (std::string)GetLanguage() + (std::string)" " + (std::string)GetExtraArgs() + (std::string)" " + (std::string)commandline;
+
+	std::istringstream iss(full_args);
+	std::vector<std::string> args((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
+
+	for (const auto& arg : args)
+		argsv.push_back((char*)arg.data());
+	argsv.push_back(nullptr);
+
+	argsv[0] = (char*)full_path.data();
 
 	//printf("%s\n", argv[0]);
 
@@ -178,6 +188,8 @@ void LaunchGame()
 	desiredPath += "/../../..";
 	//printf("%s\n", desiredPath.data());
 #endif
+
+	//printf("cd %s\n%s %s\n", desiredPath.data(), full_path.data(), full_args.data());
 
 	if (chdir(desiredPath.data()) == 0)
 	{
@@ -204,7 +216,7 @@ void LaunchGame()
 				printf("argsv[%i]: %s\n", i, argsv[i]);
 			}
 			*/
-			execvp(argsv[0], argsv);
+			execvp(argsv[0], argsv.data());
 
 			// execvp will only return if an error occurred.
 			printf("An error occurred while launching the process.\n");
@@ -226,14 +238,5 @@ void LaunchGame()
 	{
 		printf("Failed to change to desired path: %s\n", desiredPath.data());
 	}
-#endif
-#if 0
-	//printf("%s %s %s\n", GetProgram(), GetLanguage(), commandline);
-	std::string launch(GetProgram());
-	launch.append(" ");
-	launch.append(GetLanguage());
-	launch.append(" ");
-	launch.append(commandline);
-	system(launch.data());
 #endif
 }
