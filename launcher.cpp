@@ -52,17 +52,17 @@ void AdjustSettings()
 		vidmode = 0;
 		skiplauncher = true;
 	}
-	if (std::strstr(commandline, "+set vid_preferbackend 1"))
+	if (std::strstr(commandline, "+vid_preferbackend 1"))
 	{
 		vidmode = 2;
 		skiplauncher = true;
 	}
-	if (std::strstr(commandline, "+set vid_preferbackend 2"))
+	if (std::strstr(commandline, "+vid_preferbackend 2"))
 	{
 		vidmode = 1;
 		skiplauncher = true;
 	}
-	if (std::strstr(commandline, "+set vid_preferbackend 0"))
+	if (std::strstr(commandline, "+vid_preferbackend 0"))
 	{
 		vidmode = 3;
 		skiplauncher = true;
@@ -80,7 +80,7 @@ const char* GetProgram()
 	}
 }
 
-#define MANDATORYARGS " +set queryiwad false -iwad HandsOfNecromancy.ipk3 -iwad HandsOfNecromancy2.ipk3"
+#define MANDATORYARGS " +queryiwad false -iwad HandsOfNecromancy.ipk3 -iwad HandsOfNecromancy2.ipk3"
 const char* GetExtraArgs()
 {
 	switch(vidmode)
@@ -89,11 +89,11 @@ const char* GetExtraArgs()
 		return MANDATORYARGS;
 	default:
 	case 1:
-		return MANDATORYARGS " +set vid_preferbackend 2";
+		return MANDATORYARGS " +vid_preferbackend 2";
 	case 2:
-		return MANDATORYARGS " +set vid_preferbackend 1";
+		return MANDATORYARGS " +vid_preferbackend 1";
 	case 3:
-		return MANDATORYARGS " +set vid_preferbackend 0";
+		return MANDATORYARGS " +vid_preferbackend 0";
 	}
 
 }
@@ -176,7 +176,12 @@ void LaunchGame()
 	std::vector<std::string> args((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 
 	for (const auto& arg : args)
-		argsv.push_back((char*)arg.data());
+	{
+		char* cparg = (char*)arg.data();
+		if (cparg[0] != 0) // don't push null args
+			argsv.push_back(cparg);
+		printf("%s\n", cparg);
+	}
 	argsv.push_back(nullptr);
 
 	argsv[0] = (char*)full_path.data();
