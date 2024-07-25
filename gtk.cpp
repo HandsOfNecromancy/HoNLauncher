@@ -45,6 +45,14 @@ static void on_button_clicked(GtkWidget *widget, gpointer data)
 	gtk_main_quit();
 }
 
+static void on_image_clicked(GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
+	if (event->button == 1) // Left mouse button
+	{
+		LaunchExtras();
+	}
+}
+
 int main(int argc, char *argv[]) {
 	LoadSettings();
 
@@ -124,6 +132,37 @@ int main(int argc, char *argv[]) {
 
 	GtkWidget *radio6 = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(radio1), LANGPT);
 	gtk_fixed_put(GTK_FIXED(fixed), radio6, 10, 450);
+
+	// Get the screen and its resolution
+	GdkScreen *dpiscreen = gdk_screen_get_default();
+	gdouble dpi = gdk_screen_get_resolution(dpiscreen);
+
+	// Calculate the size of the image based on the DPI
+	int width = (int)(160 * dpi / 96); // 96 is the standard DPI
+	int height = (int)(120 * dpi / 96);
+
+	// Create a GdkPixbuf from the image file
+	GdkPixbuf *pixbuf_extras = gdk_pixbuf_new_from_file_at_scale("extras.png", width, height, TRUE, NULL);
+	if (pixbuf_extras == NULL)
+	{
+		//g_printerr("Failed to load image file 'extras.png'\n");
+		//return 1;
+	}
+	else
+	{
+		// Create a GtkImage from the GdkPixbuf
+		GtkWidget *image = gtk_image_new_from_pixbuf(pixbuf_extras);
+
+		// Create a GtkEventBox to handle the click event
+		GtkWidget *event_box = gtk_event_box_new();
+		gtk_container_add(GTK_CONTAINER(event_box), image);
+
+		// Connect the "button-press-event" signal to the handler function
+		g_signal_connect(event_box, "button-press-event", G_CALLBACK(on_image_clicked), NULL);
+
+		// Add the GtkEventBox to the GtkFixed container
+		gtk_fixed_put(GTK_FIXED(fixed), event_box, 470, 350); // Adjust these values to position the image
+	}
 
 	if (userlang == 0)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio1), TRUE);
