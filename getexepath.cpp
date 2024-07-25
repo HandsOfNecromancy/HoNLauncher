@@ -45,4 +45,3 @@ std::string getExecutablePath()
 
 	return stripAfterLastSlash(path);
 }
-
