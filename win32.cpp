@@ -39,64 +39,9 @@ void ButtonAction(int id)
 		PostQuitMessage(0);
 		break;
 	case 12:
-		vidmode = SendMessage(hwndComboBox, CB_GETCURSEL, 0, 0);
+		vidmode = (int)SendMessage(hwndComboBox, CB_GETCURSEL, 0, 0);
 		break;
 	}
-}
-
-LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
-{
-	static Gdiplus::Image* backgroundImage = NULL;
-
-	switch(msg)
-	{
-		case WM_CREATE:
-		{
-			// Load the background image
-			backgroundImage = new Gdiplus::Image(L"startup.png");
-			break;
-		}
-		case WM_PAINT:
-		{
-			PAINTSTRUCT ps;
-
-			HDC hdc = BeginPaint(hwnd, &ps);
-
-			// Create a Graphics object from the device context
-			Gdiplus::Graphics graphics(hdc);
-
-			// Get the dimensions of the window
-			RECT rect;
-			GetClientRect(hwnd, &rect);
-			int windowWidth = rect.right - rect.left;
-			int windowHeight = rect.bottom - rect.top;
-
-			// Draw the background image
-			if (backgroundImage != NULL)
-				graphics.DrawImage(backgroundImage, 0, 0, windowWidth, windowHeight);
-
-			EndPaint(hwnd, &ps);
-
-			break;
-		}
-		case WM_COMMAND:
-			ButtonAction(LOWORD(wparam));
-			break;
-		case WM_CLOSE:
-			DeleteObject(hFont);
-			PostQuitMessage(0);
-			break;
-		case WM_CTLCOLORSTATIC:
-		{
-			HDC hdcStatic = (HDC)wparam;
-			SetBkMode(hdcStatic, TRANSPARENT);
-			SetTextColor(hdcStatic, RGB(255, 255, 255)); 
-			return (LRESULT)GetStockObject(NULL_BRUSH);
-		}
-		default:
-			return DefWindowProc(hwnd, msg, wparam, lparam);
-	}
-	return 0;
 }
 
 typedef UINT(WINAPI* GetDpiForWindow_t)(HWND);
@@ -147,6 +92,104 @@ void CenterWindow(HWND hwnd)
 
 	// Set the position of the window
 	SetWindowPos(hwnd, HWND_TOP, posX, posY, 0, 0, SWP_NOSIZE);
+}
+
+LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+	static Gdiplus::Image* backgroundImage = NULL;
+	static Gdiplus::Bitmap* bitmap = NULL;
+
+	static INT tx, ty, sx, sy;
+
+	switch(msg)
+	{
+		case WM_CREATE:
+		{
+			Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+			ULONG_PTR gdiplusToken;
+			Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
+			// Load the background image
+			backgroundImage = new Gdiplus::Image(L"startup.png");
+			bitmap = new Gdiplus::Bitmap(L"extras.png");
+			break;
+		}
+		case WM_PAINT:
+		{
+			PAINTSTRUCT ps;
+
+			HDC hdc = BeginPaint(hwnd, &ps);
+
+			// Create a Graphics object from the device context
+			Gdiplus::Graphics graphics(hdc);
+
+			// Get the dimensions of the window
+			RECT rect;
+			GetClientRect(hwnd, &rect);
+			int windowWidth = rect.right - rect.left;
+			int windowHeight = rect.bottom - rect.top;
+
+			// Draw the background image
+			if (backgroundImage != NULL)
+				graphics.DrawImage(backgroundImage, 0, 0, windowWidth, windowHeight);
+
+			if (bitmap != NULL)
+			{
+				double dpiScale = GetDpiScale(hwnd);
+				sx = bitmap->GetWidth();
+				sy = bitmap->GetHeight();
+
+				double sizerx = 160.0 / sx;
+				double sizery = 120.0 / sy;
+				double sizer = (sizerx > sizery) ? sizerx : sizery;
+
+				sx = INT(sizer * sx);
+				sy = INT(sizer * sy);
+
+				tx = 630 - sx;
+				ty = 470 - sy;
+
+				tx = INT(GetDpiScale(hwnd) * tx);
+				ty = INT(GetDpiScale(hwnd) * ty);
+				sx = INT(GetDpiScale(hwnd) * sx);
+				sy = INT(GetDpiScale(hwnd) * sy);
+
+				graphics.DrawImage(bitmap, tx, ty, sx, sy);
+			}
+			else if (bitmap == NULL)
+			{
+				tx = ty = sx = sy = -1; // disable extras field
+			}
+
+			EndPaint(hwnd, &ps);
+
+			break;
+		}
+		case WM_COMMAND:
+			ButtonAction(LOWORD(wparam));
+			break;
+		case WM_CLOSE:
+			DeleteObject(hFont);
+			PostQuitMessage(0);
+			break;
+		case WM_CTLCOLORSTATIC:
+		{
+			HDC hdcStatic = (HDC)wparam;
+			SetBkMode(hdcStatic, TRANSPARENT);
+			SetTextColor(hdcStatic, RGB(255, 255, 255)); 
+			return (LRESULT)GetStockObject(NULL_BRUSH);
+		}
+		case WM_LBUTTONUP:
+		{
+			int x = LOWORD(lparam);  // horizontal position of cursor 
+			int y = HIWORD(lparam);  // vertical position of cursor
+			if (x >= tx && x <= tx+sx && y >= ty && y <= ty+sy)
+				LaunchExtras();
+		}
+		default:
+			return DefWindowProc(hwnd, msg, wparam, lparam);
+	}
+	return 0;
 }
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR lpCmdLine, int nCmdShow)

@@ -7,6 +7,7 @@
 
 #if defined(_WIN32)
 #include <windows.h>
+#include <algorithm>
 #define EXT ".exe"
 #define CURDIR ".\\"
 #elif defined(__APPLE__)
@@ -241,4 +242,59 @@ void LaunchGame()
 		printf("Failed to change to desired path: %s\n", desiredPath.data());
 	}
 #endif
+}
+
+void LaunchExtras()
+{
+	std::string path = getExecutablePath() + "/extras.url";
+	#ifdef _WIN32
+
+	std::string command = "explorer.exe \"" + path + "\"";
+	std::replace(command.begin(), command.end(), '/', '\\');
+
+	//printf("%s\n", command.c_str());
+
+	// Windows
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+	ZeroMemory(&pi, sizeof(pi));
+
+	// Start the child process.
+	if (!CreateProcess(
+		NULL,   // No module name (use command line)
+		(char*)command.c_str(),  // Command line
+		NULL,   // Process handle not inheritable
+		NULL,   // Thread handle not inheritable
+		FALSE,  // Set handle inheritance to FALSE
+		0,	  // No creation flags
+		NULL,   // Use parent's environment block
+		NULL,   // Use parent's starting directory
+		&si,	// Pointer to STARTUPINFO structure
+		&pi)	// Pointer to PROCESS_INFORMATION structure
+	)
+	{
+		printf("CreateProcess failed (%d).\n", GetLastError());
+		return;
+	}
+
+	// Close process and thread handles.
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+
+	#elif __APPLE__
+	// MacOS
+	if (fork() == 0)
+	{
+		execl("/usr/bin/open", "open", path.c_str(), (char *)0);
+	}
+	#else
+	// Linux
+	if (fork() == 0)
+	{
+		execl("/usr/bin/xdg-open", "xdg-open", path.c_str(), (char *)0);
+	}
+	#endif
 }
