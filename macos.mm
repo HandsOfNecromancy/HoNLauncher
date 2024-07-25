@@ -127,8 +127,32 @@
 	radioButton6.target = self;
 	radioButton6.action = @selector(radioButton6Clicked:);
 	[self.window.contentView addSubview:radioButton6];
-	
+
+	// Create the clickable image
+	NSString *extrasPath = [appPath stringByAppendingPathComponent:@"extras.png"];
+	NSURL *extrasURL = [NSURL fileURLWithPath:extrasPath];
+	NSImage *extrasImage = [[NSImage alloc] initWithContentsOfURL:extrasURL];
+
+	if (extrasImage)
+	{
+		[extrasImage setSize:NSMakeSize(160, 120)]; // Set the image size
+
+		NSButton *extrasButton = [[NSButton alloc] initWithFrame:NSMakeRect(self.window.contentView.bounds.size.width - 170, 10, 160, 120)];
+		[extrasButton setImage:extrasImage];
+		[extrasButton setButtonType:NSButtonTypeMomentaryChange];
+		[extrasButton setBordered:NO]; // Remove border
+		[extrasButton setTarget:self];
+		[extrasButton setAction:@selector(extrasButtonClicked:)];
+		[extrasButton setAlphaValue:1.0]; // Make the button fully transparent
+		[extrasButton setBackgroundColor:[NSColor clearColor]]; // Make the button's background color clear
+		[self.window.contentView addSubview:extrasButton];
+	}
 	[self.window makeKeyAndOrderFront:nil];
+}
+
+- (void)extrasButtonClicked:(NSButton *)button
+{
+	LaunchExtras();
 }
 
 - (NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox
