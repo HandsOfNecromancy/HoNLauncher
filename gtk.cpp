@@ -80,10 +80,13 @@ int main(int argc, char *argv[]) {
 	gtk_init(&argc, &argv);
 
 	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
 	gtk_window_set_title(GTK_WINDOW(window), GAMENAME);
 	gtk_window_set_default_size(GTK_WINDOW(window), 640, 480);
 	gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 	gtk_window_set_type_hint(GTK_WINDOW(window), GDK_WINDOW_TYPE_HINT_DIALOG);
+
+	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
 
 	GtkWidget *fixed = gtk_fixed_new();
 	gtk_container_add(GTK_CONTAINER(window), fixed);

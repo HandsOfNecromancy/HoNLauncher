@@ -294,7 +294,10 @@ void LaunchExtras()
 	// Linux
 	if (fork() == 0)
 	{
-		execl("/usr/bin/xdg-open", "xdg-open", path.c_str(), (char *)0);
+		std::string command = "xdg-open $(grep 'URL=' \"" + path + "\"|grep -o 'http.*')";
+		system(command.c_str());
+		exit(0);
+		//execl("/usr/bin/xdg-open", "xdg-open", path.c_str(), (char *)0);
 	}
 	#endif
 }
