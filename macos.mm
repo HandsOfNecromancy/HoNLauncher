@@ -148,6 +148,10 @@
 		[self.window.contentView addSubview:extrasButton];
 	}
 	[self.window makeKeyAndOrderFront:nil];
+
+	// make frontmost window
+	[[NSRunningApplication currentApplication] activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+	[self.window makeKeyAndOrderFront:self];
 }
 
 - (void)extrasButtonClicked:(NSButton *)button
