@@ -24,9 +24,8 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
 	NSFileManager *fileManager = [NSFileManager defaultManager];
-	NSString *appPath1 = [[NSBundle mainBundle] bundlePath];
-	NSString *appPath2 = @"/Contents/MacOS";
-	NSString *appPath = [appPath stringByAppendingString:appPath2];
+	NSString *executablePath = [[NSBundle mainBundle] executablePath];
+	NSString *appPath = [executablePath stringByDeletingLastPathComponent];
 	[fileManager changeCurrentDirectoryPath:appPath];
 
 	//printf ("%s\n", [appPath UTF8String]);
@@ -58,6 +57,7 @@
 	comboBox.dataSource = self; // assuming AppDelegate implements the NSComboBoxDataSource protocol
 	comboBox.delegate = self; // assuming AppDelegate implements the NSComboBoxDelegate protocol
 	[comboBox selectItemAtIndex:vidmode];
+	[comboBox setEditable:NO];
 	[self.window.contentView addSubview:comboBox];
 	
 	// Create the buttons
@@ -147,11 +147,19 @@
 		[extrasButton setBackgroundColor:[NSColor clearColor]]; // Make the button's background color clear
 		[self.window.contentView addSubview:extrasButton];
 	}
-	[self.window makeKeyAndOrderFront:nil];
+
+	NSString* const title = @GAMENAME;
+	[self.window setTitle:title];
 
 	// make frontmost window
 	[[NSRunningApplication currentApplication] activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+	
+	[self.window center];
+	[self.window orderFront:self];
 	[self.window makeKeyAndOrderFront:self];
+	[NSApp runModalForWindow:self.window];
+
+	//[self.window makeKeyAndOrderFront:self];
 }
 
 - (void)extrasButtonClicked:(NSButton *)button
