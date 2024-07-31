@@ -30,6 +30,9 @@
 
 	//printf ("%s\n", [appPath UTF8String]);
 
+	// Insert standard menu items
+	[self createMainMenu];
+
 	// Create the window
 	self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 640, 480)
 				styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable
@@ -259,6 +262,38 @@
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender
 {
 	return YES;
+}
+
+- (void)createMainMenu
+{
+	NSMenu *mainMenu = [[NSMenu alloc] initWithTitle:@"MainMenu"];
+	[NSApp setMainMenu:mainMenu];
+
+	// Create the application menu
+	NSMenuItem *appMenuItem = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
+	[mainMenu addItem:appMenuItem];
+
+	NSMenu *appMenu = [[NSMenu alloc] initWithTitle:@""];
+	[appMenuItem setSubmenu:appMenu];
+
+	// Add standard menu items
+	[appMenu addItemWithTitle:[NSString stringWithFormat:@"About %s", GAMENAME] action:@selector(showAboutDialog) keyEquivalent:@""];
+	[appMenu addItem:[NSMenuItem separatorItem]];
+	[appMenu addItemWithTitle:[NSString stringWithFormat:@"Hide %s", GAMENAME] action:@selector(hide:) keyEquivalent:@"h"];
+	[appMenu addItemWithTitle:@"Hide Others" action:@selector(hideOtherApplications:) keyEquivalent:@"h"];
+	[[appMenu itemAtIndex:2] setKeyEquivalentModifierMask:(NSEventModifierFlagCommand | NSEventModifierFlagOption)];
+	[appMenu addItemWithTitle:@"Show All" action:@selector(unhideAllApplications:) keyEquivalent:@""];
+	[appMenu addItem:[NSMenuItem separatorItem]];
+	[appMenu addItemWithTitle:[NSString stringWithFormat:@"Quit %s", GAMENAME] action:@selector(terminate:) keyEquivalent:@"q"];
+}
+
+- (void)showAboutDialog
+{
+	NSAlert *alert = [[NSAlert alloc] init];
+	alert.messageText = [NSString stringWithFormat:@"About %s", GAMENAME];
+	alert.informativeText = [NSString stringWithFormat:@" Launcher for %s \n Copyright ©️ 2024 HoN Team \n Licensed GPLv3 \n Source code available at: \n https://github.com/HandsOfNecromancy/ ", GAMENAME];
+	[alert addButtonWithTitle:@"OK"];
+	[alert runModal];
 }
 
 @end
