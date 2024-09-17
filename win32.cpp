@@ -6,6 +6,7 @@
 #include <uxtheme.h>
 #include "strings.h"
 #include "launcher.h"
+#include <array>
 #pragma comment (lib,"Gdiplus.lib")
 #pragma comment (lib,"dwmapi.lib")
 #pragma comment (lib,"uxtheme.lib")
@@ -304,7 +305,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR lpCmdLine, int nCmdShow)
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,	// Styles 
 		UINT(10.0 * dpiScale),	// x position 
 		UINT(300.0 * dpiScale),	// y position 
-		UINT(100.0 * dpiScale),	// Button width
+		UINT(200.0 * dpiScale),	// Button width
 		UINT(30.0 * dpiScale),	// Button height
 		hwnd,	// Parent window
 		(HMENU)1,	// No menu.
@@ -319,7 +320,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR lpCmdLine, int nCmdShow)
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
 		UINT(10.0 * dpiScale),
 		UINT(330.0 * dpiScale),
-		UINT(100.0 * dpiScale),
+		UINT(200.0 * dpiScale),
 		UINT(30.0 * dpiScale),
 		hwnd,
 		(HMENU)2,
@@ -334,7 +335,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR lpCmdLine, int nCmdShow)
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
 		UINT(10.0 * dpiScale),
 		UINT(360.0 * dpiScale),
-		UINT(100.0 * dpiScale),
+		UINT(200.0 * dpiScale),
 		UINT(30.0 * dpiScale),
 		hwnd,
 		(HMENU)3,
@@ -349,7 +350,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR lpCmdLine, int nCmdShow)
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
 		UINT(10.0 * dpiScale),
 		UINT(390.0 * dpiScale),
-		UINT(100.0 * dpiScale),
+		UINT(200.0 * dpiScale),
 		UINT(30.0 * dpiScale),
 		hwnd,
 		(HMENU)4,
@@ -364,7 +365,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR lpCmdLine, int nCmdShow)
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
 		UINT(10.0 * dpiScale),
 		UINT(420.0 * dpiScale),
-		UINT(100.0 * dpiScale),
+		UINT(200.0 * dpiScale),
 		UINT(30.0 * dpiScale),
 		hwnd,
 		(HMENU)5,
@@ -379,12 +380,19 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR lpCmdLine, int nCmdShow)
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
 		UINT(10.0 * dpiScale),
 		UINT(450.0 * dpiScale),
-		UINT(100.0 * dpiScale),
+		UINT(200.0 * dpiScale),
 		UINT(30.0 * dpiScale),
 		hwnd,
 		(HMENU)6,
 		(HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), 
 		NULL);
+
+	SetWindowTheme(hwndEn, L"", L"");
+	SetWindowTheme(hwndFr, L"", L"");
+	SetWindowTheme(hwndDe, L"", L"");
+	SetWindowTheme(hwndRu, L"", L"");
+	SetWindowTheme(hwndEs, L"", L"");
+	SetWindowTheme(hwndPt, L"", L"");
 
 	if (userlang == 1)
 		SendMessage(hwndFr, BM_SETCHECK, BST_CHECKED, 0);
@@ -399,15 +407,17 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR lpCmdLine, int nCmdShow)
 	else
 		SendMessage(hwndEn, BM_SETCHECK, BST_CHECKED, 0);
 
-	SetWindowTheme(hwndEn, L"", L"");
-	SetWindowTheme(hwndFr, L"", L"");
-	SetWindowTheme(hwndDe, L"", L"");
-	SetWindowTheme(hwndRu, L"", L"");
-	SetWindowTheme(hwndEs, L"", L"");
-	SetWindowTheme(hwndPt, L"", L"");
-
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
+
+	// try and correct for the race condition that destroys the rendering of the radio text
+	const std::array<HWND, 6> hwndArray = {
+		hwndEn, hwndFr, hwndDe, hwndRu, hwndEs, hwndPt
+	};
+	for (const auto& hwnd : hwndArray) {
+		ShowWindow(hwnd, SW_HIDE);
+		ShowWindow(hwnd, SW_SHOW);
+	}
 
 	hFont = CreateFont(UINT(15.0 * dpiScale), 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
 		CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, VARIABLE_PITCH, TEXT("Ariel"));
